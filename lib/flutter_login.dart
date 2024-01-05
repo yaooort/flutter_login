@@ -278,6 +278,7 @@ class FlutterLogin extends StatefulWidget {
     required this.onLogin,
     required this.onRecoverPassword,
     this.title,
+    this.popupOnly = false,
 
     /// The [ImageProvider] or asset path [String] for the logo image to be displayed
     dynamic logo,
@@ -401,6 +402,9 @@ class FlutterLogin extends StatefulWidget {
 
   /// Hide the title above the login providers. If no providers are set this is uneffective
   final bool hideProvidersTitle;
+
+  /// Using only a pop-up in the middle
+  final bool popupOnly;
 
   /// Disable the page transformation between switching authentication modes.
   /// Fixes #97 if disabled. https://github.com/NearHuscarl/flutter_login/issues/97
@@ -785,7 +789,6 @@ class _FlutterLoginState extends State<FlutterLogin>
         ),
       );
     }
-
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(
@@ -813,73 +816,107 @@ class _FlutterLoginState extends State<FlutterLogin>
           ),
         ),
       ],
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Stack(
-          children: <Widget>[
-            GradientBox(
-              colors: [
-                loginTheme.pageColorLight ?? theme.primaryColor,
-                loginTheme.pageColorDark ?? theme.primaryColorDark,
-              ],
-            ),
-            SingleChildScrollView(
-              keyboardDismissBehavior: widget.keyboardDismissBehavior,
-              child: Theme(
-                data: theme,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: <Widget>[
-                    Positioned(
-                      child: AuthCard(
-                        key: authCardKey,
-                        userType: widget.userType,
-                        keyboardDismissBehavior: widget.keyboardDismissBehavior,
-                        padding: EdgeInsets.only(top: cardTopPosition),
-                        loadingController: _loadingController,
-                        userValidator: userValidator,
-                        validateUserImmediately: validateUserImmediately,
-                        passwordValidator: passwordValidator,
-                        onSubmit: _reverseHeaderAnimation,
-                        onSubmitCompleted: widget.onSubmitAnimationCompleted,
-                        hideSignUpButton: widget.onSignup == null,
-                        hideForgotPasswordButton:
-                            widget.hideForgotPasswordButton,
-                        loginAfterSignUp: widget.loginAfterSignUp,
-                        hideProvidersTitle: widget.hideProvidersTitle,
-                        additionalSignUpFields: widget.additionalSignupFields,
-                        disableCustomPageTransformer:
-                            widget.disableCustomPageTransformer,
-                        loginTheme: widget.theme,
-                        navigateBackAfterRecovery:
-                            widget.navigateBackAfterRecovery,
-                        scrollable: widget.scrollable,
-                        confirmSignupKeyboardType:
-                            widget.confirmSignupKeyboardType,
-                        introWidget: widget.headerWidget,
-                        initialIsoCode: widget.initialIsoCode,
-                      ),
-                    ),
-                    Positioned(
-                      top: cardTopPosition - headerHeight - headerMargin,
-                      child: _buildHeader(headerHeight, loginTheme),
-                    ),
-                    Positioned.fill(
-                      child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: footerWidget,
-                      ),
-                    ),
-                    ...?widget.children,
-                  ],
+      child: widget.popupOnly
+          ? Theme(
+              data: theme,
+              child: Center(
+                child: AuthCard(
+                  key: authCardKey,
+                  userType: widget.userType,
+                  keyboardDismissBehavior: widget.keyboardDismissBehavior,
+                  padding: EdgeInsets.only(top: cardTopPosition),
+                  loadingController: _loadingController,
+                  userValidator: userValidator,
+                  validateUserImmediately: validateUserImmediately,
+                  passwordValidator: passwordValidator,
+                  onSubmit: _reverseHeaderAnimation,
+                  onSubmitCompleted: widget.onSubmitAnimationCompleted,
+                  hideSignUpButton: widget.onSignup == null,
+                  hideForgotPasswordButton: widget.hideForgotPasswordButton,
+                  loginAfterSignUp: widget.loginAfterSignUp,
+                  hideProvidersTitle: widget.hideProvidersTitle,
+                  additionalSignUpFields: widget.additionalSignupFields,
+                  disableCustomPageTransformer:
+                      widget.disableCustomPageTransformer,
+                  loginTheme: widget.theme,
+                  navigateBackAfterRecovery: widget.navigateBackAfterRecovery,
+                  scrollable: widget.scrollable,
+                  confirmSignupKeyboardType: widget.confirmSignupKeyboardType,
+                  introWidget: widget.headerWidget,
+                  initialIsoCode: widget.initialIsoCode,
                 ),
               ),
+            )
+          : Scaffold(
+              backgroundColor: Colors.transparent,
+              body: Stack(
+                children: <Widget>[
+                  GradientBox(
+                    colors: [
+                      loginTheme.pageColorLight ?? theme.primaryColor,
+                      loginTheme.pageColorDark ?? theme.primaryColorDark,
+                    ],
+                  ),
+                  SingleChildScrollView(
+                    keyboardDismissBehavior: widget.keyboardDismissBehavior,
+                    child: Theme(
+                      data: theme,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: <Widget>[
+                          Positioned(
+                            child: AuthCard(
+                              key: authCardKey,
+                              userType: widget.userType,
+                              keyboardDismissBehavior:
+                                  widget.keyboardDismissBehavior,
+                              padding: EdgeInsets.only(top: cardTopPosition),
+                              loadingController: _loadingController,
+                              userValidator: userValidator,
+                              validateUserImmediately: validateUserImmediately,
+                              passwordValidator: passwordValidator,
+                              onSubmit: _reverseHeaderAnimation,
+                              onSubmitCompleted:
+                                  widget.onSubmitAnimationCompleted,
+                              hideSignUpButton: widget.onSignup == null,
+                              hideForgotPasswordButton:
+                                  widget.hideForgotPasswordButton,
+                              loginAfterSignUp: widget.loginAfterSignUp,
+                              hideProvidersTitle: widget.hideProvidersTitle,
+                              additionalSignUpFields:
+                                  widget.additionalSignupFields,
+                              disableCustomPageTransformer:
+                                  widget.disableCustomPageTransformer,
+                              loginTheme: widget.theme,
+                              navigateBackAfterRecovery:
+                                  widget.navigateBackAfterRecovery,
+                              scrollable: widget.scrollable,
+                              confirmSignupKeyboardType:
+                                  widget.confirmSignupKeyboardType,
+                              introWidget: widget.headerWidget,
+                              initialIsoCode: widget.initialIsoCode,
+                            ),
+                          ),
+                          Positioned(
+                            top: cardTopPosition - headerHeight - headerMargin,
+                            child: _buildHeader(headerHeight, loginTheme),
+                          ),
+                          Positioned.fill(
+                            child: Align(
+                              alignment: Alignment.bottomCenter,
+                              child: footerWidget,
+                            ),
+                          ),
+                          ...?widget.children,
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (!kReleaseMode && widget.showDebugButtons)
+                    _buildDebugAnimationButtons(),
+                ],
+              ),
             ),
-            if (!kReleaseMode && widget.showDebugButtons)
-              _buildDebugAnimationButtons(),
-          ],
-        ),
-      ),
     );
   }
 }
