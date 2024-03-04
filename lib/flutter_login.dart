@@ -279,6 +279,7 @@ class FlutterLogin extends StatefulWidget {
     required this.onRecoverPassword,
     this.title,
     this.popupOnly = false,
+    this.popupTapMask,
 
     /// The [ImageProvider] or asset path [String] for the logo image to be displayed
     dynamic logo,
@@ -406,6 +407,9 @@ class FlutterLogin extends StatefulWidget {
   /// Using only a pop-up in the middle
   final bool popupOnly;
 
+  /// Click on other empty areas of the pop-up window
+  final VoidCallback? popupTapMask;
+
   /// Disable the page transformation between switching authentication modes.
   /// Fixes #97 if disabled. https://github.com/NearHuscarl/flutter_login/issues/97
   final bool disableCustomPageTransformer;
@@ -521,7 +525,7 @@ class _FlutterLoginState extends State<FlutterLogin>
       duration: loadingDuration,
     );
 
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(milliseconds: 200), () {
       if (mounted) {
         _loadingController.forward();
       }
@@ -819,32 +823,31 @@ class _FlutterLoginState extends State<FlutterLogin>
       child: widget.popupOnly
           ? Theme(
               data: theme,
-              child: Center(
-                child: AuthCard(
-                  key: authCardKey,
-                  userType: widget.userType,
-                  keyboardDismissBehavior: widget.keyboardDismissBehavior,
-                  padding: EdgeInsets.only(top: cardTopPosition),
-                  loadingController: _loadingController,
-                  userValidator: userValidator,
-                  validateUserImmediately: validateUserImmediately,
-                  passwordValidator: passwordValidator,
-                  onSubmit: _reverseHeaderAnimation,
-                  onSubmitCompleted: widget.onSubmitAnimationCompleted,
-                  hideSignUpButton: widget.onSignup == null,
-                  hideForgotPasswordButton: widget.hideForgotPasswordButton,
-                  loginAfterSignUp: widget.loginAfterSignUp,
-                  hideProvidersTitle: widget.hideProvidersTitle,
-                  additionalSignUpFields: widget.additionalSignupFields,
-                  disableCustomPageTransformer:
-                      widget.disableCustomPageTransformer,
-                  loginTheme: widget.theme,
-                  navigateBackAfterRecovery: widget.navigateBackAfterRecovery,
-                  scrollable: widget.scrollable,
-                  confirmSignupKeyboardType: widget.confirmSignupKeyboardType,
-                  introWidget: widget.headerWidget,
-                  initialIsoCode: widget.initialIsoCode,
-                ),
+              child: AuthCard(
+                key: authCardKey,
+                userType: widget.userType,
+                popupOnly: true,
+                popupTapMask: widget.popupTapMask,
+                keyboardDismissBehavior: widget.keyboardDismissBehavior,
+                loadingController: _loadingController,
+                userValidator: userValidator,
+                validateUserImmediately: validateUserImmediately,
+                passwordValidator: passwordValidator,
+                onSubmit: _reverseHeaderAnimation,
+                onSubmitCompleted: widget.onSubmitAnimationCompleted,
+                hideSignUpButton: widget.onSignup == null,
+                hideForgotPasswordButton: widget.hideForgotPasswordButton,
+                loginAfterSignUp: widget.loginAfterSignUp,
+                hideProvidersTitle: widget.hideProvidersTitle,
+                additionalSignUpFields: widget.additionalSignupFields,
+                disableCustomPageTransformer:
+                    widget.disableCustomPageTransformer,
+                loginTheme: widget.theme,
+                navigateBackAfterRecovery: widget.navigateBackAfterRecovery,
+                scrollable: widget.scrollable,
+                confirmSignupKeyboardType: widget.confirmSignupKeyboardType,
+                introWidget: widget.headerWidget,
+                initialIsoCode: widget.initialIsoCode,
               ),
             )
           : Scaffold(

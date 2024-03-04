@@ -25,9 +25,13 @@ import 'package:provider/provider.dart';
 import 'package:sign_in_button/sign_in_button.dart';
 
 part 'additional_signup_card.dart';
+
 part 'login_card.dart';
+
 part 'recover_card.dart';
+
 part 'recover_confirm_card.dart';
+
 part 'signup_confirm_card.dart';
 
 class AuthCard extends StatefulWidget {
@@ -37,6 +41,8 @@ class AuthCard extends StatefulWidget {
     this.padding = EdgeInsets.zero,
     required this.loadingController,
     this.userValidator,
+    this.popupOnly = false,
+    this.popupTapMask,
     this.validateUserImmediately,
     this.passwordValidator,
     this.onSubmit,
@@ -56,6 +62,8 @@ class AuthCard extends StatefulWidget {
     this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
   });
 
+  final bool popupOnly;
+  final VoidCallback? popupTapMask;
   final EdgeInsets padding;
   final AnimationController loadingController;
   final FormFieldValidator<String>? userValidator;
@@ -351,7 +359,6 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
           true;
       return auth.onConfirmSignup != null && confirmSignupRequired;
     }
-
     switch (index) {
       case _loginPageIndex:
         return _buildLoadingAnimator(
@@ -471,10 +478,10 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
-
+    final cardWidth = min(deviceSize.width * 0.75, 380.0);
     final Widget current = Container(
       height: deviceSize.height,
-      width: deviceSize.width,
+      width: widget.popupOnly ? cardWidth : deviceSize.width,
       padding: widget.padding,
       child: TransformerPageView(
         physics: const NeverScrollableScrollPhysics(),
@@ -488,24 +495,26 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
             ? null
             : CustomPageTransformer(),
         itemBuilder: (BuildContext context, int index) {
-          if (widget.scrollable) {
-            return Align(
-              alignment: Alignment.topCenter,
-              child: Scrollbar(
-                controller: _scrollController,
-                child: SingleChildScrollView(
-                  keyboardDismissBehavior: widget.keyboardDismissBehavior,
-                  controller: _scrollController,
-                  child: _changeToCard(context, index),
-                ),
-              ),
-            );
-          } else {
-            return Align(
-              alignment: Alignment.topCenter,
-              child: _changeToCard(context, index),
-            );
-          }
+          return widget.popupOnly
+              ? Stack(
+                  children: [
+                    Positioned.fill(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: widget.popupTapMask,
+                        child: Container(),
+                      ),
+                    ),
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [getItem(index)],
+                      ),
+                    ),
+                  ],
+                )
+              : getItem(index);
         },
       ),
     );
@@ -523,5 +532,26 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
         );
       },
     );
+  }
+
+  Widget getItem(int index) {
+    if (widget.scrollable) {
+      return Align(
+        alignment: Alignment.topCenter,
+        child: Scrollbar(
+          controller: _scrollController,
+          child: SingleChildScrollView(
+            keyboardDismissBehavior: widget.keyboardDismissBehavior,
+            controller: _scrollController,
+            child: _changeToCard(context, index),
+          ),
+        ),
+      );
+    } else {
+      return Align(
+        alignment: Alignment.topCenter,
+        child: _changeToCard(context, index),
+      );
+    }
   }
 }
